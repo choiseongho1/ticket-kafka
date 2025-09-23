@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * 영화 리포지토리 인터페이스
  */
-public interface MovieRepository extends JpaRepository<Movie, Long> {
+public interface MovieRepository extends JpaRepository<Movie, Long>, MovieDslRepository{
 
     /**
      * 제목으로 영화를 검색합니다.
@@ -39,21 +39,6 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
      */
     Page<Movie> findByReleaseDateAfter(LocalDate releaseDate, Pageable pageable);
 
-    /**
-     * 개봉일 이전의 영화를 조회합니다.
-     * @param releaseDate 개봉일
-     * @param pageable 페이지 정보
-     * @return 영화 페이지
-     */
-    Page<Movie> findByReleaseDateBefore(LocalDate releaseDate, Pageable pageable);
-
-    /**
-     * 종료일 이후의 영화를 조회합니다.
-     * @param endDate 종료일
-     * @param pageable 페이지 정보
-     * @return 영화 페이지
-     */
-    Page<Movie> findByEndDateAfter(LocalDate endDate, Pageable pageable);
 
     /**
      * 개봉일 이전이고 종료일 이후의 영화를 조회합니다. (현재 상영 중인 영화)
@@ -64,19 +49,4 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
      */
     Page<Movie> findByReleaseDateBeforeAndEndDateAfter(LocalDate releaseDate, LocalDate endDate, Pageable pageable);
 
-    /**
-     * 감독으로 영화를 검색합니다.
-     * @param director 감독
-     * @param pageable 페이지 정보
-     * @return 영화 페이지
-     */
-    Page<Movie> findByDirectorContaining(String director, Pageable pageable);
-
-    /**
-     * 배우로 영화를 검색합니다.
-     * @param actors 배우
-     * @param pageable 페이지 정보
-     * @return 영화 페이지
-     */
-    Page<Movie> findByActorsContaining(String actors, Pageable pageable);
 }

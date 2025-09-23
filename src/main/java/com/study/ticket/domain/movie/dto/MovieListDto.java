@@ -1,5 +1,7 @@
-package com.study.ticket.domain.movie.controller.dto;
+package com.study.ticket.domain.movie.dto;
 
+import com.querydsl.core.annotations.QueryProjection;
+import com.study.ticket.domain.movie.domain.entity.Movie;
 import com.study.ticket.domain.movie.domain.enums.Genre;
 import com.study.ticket.domain.movie.domain.enums.Rating;
 import lombok.AllArgsConstructor;
@@ -10,13 +12,17 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 
 /**
- * 영화 생성 요청 DTO
+ * 영화 목록 응답 DTO
  */
 @Data
 @Builder
 @NoArgsConstructor
-@AllArgsConstructor
-public class MovieCreateRequest {
+public class MovieListDto {
+
+    /**
+     * 영화 ID
+     */
+    private Long id;
 
     /**
      * 영화 제목
@@ -62,4 +68,18 @@ public class MovieCreateRequest {
      * 등급
      */
     private Rating rating;
+
+    @QueryProjection
+    public MovieListDto(Long id, String title, String description, String director, String actors, Integer runningTime, LocalDate releaseDate, LocalDate endDate, Genre genre, Rating rating){
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.director = director;
+        this.actors = actors;
+        this.runningTime = runningTime;
+        this.releaseDate = releaseDate;
+        this.endDate = endDate;
+        this.genre = genre;
+        this.rating = rating;
+    }
 }

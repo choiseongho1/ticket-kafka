@@ -174,6 +174,28 @@ public class QueryUtils {
     }
     
     /**
+     * LocalDate 필드에 대한 크거나 같음(>=) 조건 (null 안전)
+     * 
+     * @param value 비교할 값
+     * @param field 필드 표현식
+     * @return 조건식 (값이 null이면 null 반환)
+     */
+    public static BooleanExpression goe(LocalDate value, DatePath<LocalDate> field) {
+        return value != null ? field.goe(value) : null;
+    }
+    
+    /**
+     * LocalDate 필드에 대한 작거나 같음(<=) 조건 (null 안전)
+     * 
+     * @param value 비교할 값
+     * @param field 필드 표현식
+     * @return 조건식 (값이 null이면 null 반환)
+     */
+    public static BooleanExpression loe(LocalDate value, DatePath<LocalDate> field) {
+        return value != null ? field.loe(value) : null;
+    }
+    
+    /**
      * 컬렉션에 포함 여부 조건 (in) (null 안전)
      * 
      * @param values 값 컬렉션
@@ -218,6 +240,124 @@ public class QueryUtils {
      */
     public static BooleanExpression between(LocalDate from, LocalDate to, DatePath<LocalDate> field) {
         return from != null && to != null ? field.between(from, to) : null;
+    }
+    
+    /**
+     * 특정 날짜가 시작일과 종료일 사이에 있는지 확인하는 Between 조건 (null 안전)
+     * 
+     * @param startDateField 시작일 필드
+     * @param endDateField 종료일 필드
+     * @param date 확인할 날짜
+     * @return 조건식 (date가 null이면 null 반환)
+     */
+    public static BooleanExpression between(DatePath<LocalDate> startDateField, DatePath<LocalDate> endDateField, LocalDate date) {
+        if (date == null) {
+            return null;
+        }
+        return startDateField.loe(date).and(endDateField.goe(date));
+    }
+    
+    /**
+     * 특정 날짜가 시작일과 종료일 사이에 있는지 확인하는 Between 조건 (null 안전)
+     * 
+     * @param startDateTimeField 시작시간 필드
+     * @param endDateTimeField 종료시간 필드
+     * @param dateTime 확인할 시간
+     * @return 조건식 (dateTime이 null이면 null 반환)
+     */
+    public static BooleanExpression between(DateTimePath<LocalDateTime> startDateTimeField, DateTimePath<LocalDateTime> endDateTimeField, LocalDateTime dateTime) {
+        if (dateTime == null) {
+            return null;
+        }
+        return startDateTimeField.loe(dateTime).and(endDateTimeField.goe(dateTime));
+    }
+    
+    /**
+     * 문자열 필드에 대한 like 조건 (null 안전)
+     * 
+     * @param value 검색할 값 (% 포함 가능)
+     * @param field 필드 표현식
+     * @return 조건식 (값이 null이면 null 반환)
+     */
+    public static BooleanExpression like(String value, StringPath field) {
+        return value != null ? field.like(value) : null;
+    }
+    
+    /**
+     * 문자열 필드에 대한 대소문자 무시 like 조건 (null 안전)
+     * 
+     * @param value 검색할 값 (% 포함 가능)
+     * @param field 필드 표현식
+     * @return 조건식 (값이 null이면 null 반환)
+     */
+    public static BooleanExpression likeIgnoreCase(String value, StringPath field) {
+        return value != null ? field.likeIgnoreCase(value) : null;
+    }
+    
+    /**
+     * 숫자 필드에 대한 초과(>) 조건 (null 안전)
+     * 
+     * @param value 비교할 값
+     * @param field 필드 표현식
+     * @return 조건식 (값이 null이면 null 반환)
+     */
+    public static <T extends Number & Comparable<?>> BooleanExpression gt(T value, NumberPath<T> field) {
+        return value != null ? field.gt(value) : null;
+    }
+    
+    /**
+     * 숫자 필드에 대한 미만(<) 조건 (null 안전)
+     * 
+     * @param value 비교할 값
+     * @param field 필드 표현식
+     * @return 조건식 (값이 null이면 null 반환)
+     */
+    public static <T extends Number & Comparable<?>> BooleanExpression lt(T value, NumberPath<T> field) {
+        return value != null ? field.lt(value) : null;
+    }
+    
+    /**
+     * LocalDate 필드에 대한 초과(>) 조건 (null 안전)
+     * 
+     * @param value 비교할 값
+     * @param field 필드 표현식
+     * @return 조건식 (값이 null이면 null 반환)
+     */
+    public static BooleanExpression gt(LocalDate value, DatePath<LocalDate> field) {
+        return value != null ? field.gt(value) : null;
+    }
+    
+    /**
+     * LocalDate 필드에 대한 미만(<) 조건 (null 안전)
+     * 
+     * @param value 비교할 값
+     * @param field 필드 표현식
+     * @return 조건식 (값이 null이면 null 반환)
+     */
+    public static BooleanExpression lt(LocalDate value, DatePath<LocalDate> field) {
+        return value != null ? field.lt(value) : null;
+    }
+    
+    /**
+     * LocalDateTime 필드에 대한 초과(>) 조건 (null 안전)
+     * 
+     * @param value 비교할 값
+     * @param field 필드 표현식
+     * @return 조건식 (값이 null이면 null 반환)
+     */
+    public static BooleanExpression gt(LocalDateTime value, DateTimePath<LocalDateTime> field) {
+        return value != null ? field.gt(value) : null;
+    }
+    
+    /**
+     * LocalDateTime 필드에 대한 미만(<) 조건 (null 안전)
+     * 
+     * @param value 비교할 값
+     * @param field 필드 표현식
+     * @return 조건식 (값이 null이면 null 반환)
+     */
+    public static BooleanExpression lt(LocalDateTime value, DateTimePath<LocalDateTime> field) {
+        return value != null ? field.lt(value) : null;
     }
     
     /**
@@ -283,5 +423,35 @@ public class QueryUtils {
         Order order = "desc".equalsIgnoreCase(direction) ? Order.DESC : Order.ASC;
         
         return new OrderSpecifier(order, path);
+    }
+    
+    /**
+     * 문자열이 null이거나 빈 문자열인지 확인
+     * 
+     * @param value 확인할 문자열
+     * @return true: null이거나 빈 문자열, false: 그 외
+     */
+    public static boolean isEmpty(String value) {
+        return value == null || value.trim().isEmpty();
+    }
+    
+    /**
+     * 문자열이 null이 아니고 빈 문자열이 아닌지 확인
+     * 
+     * @param value 확인할 문자열
+     * @return true: null이 아니고 빈 문자열이 아님, false: 그 외
+     */
+    public static boolean isNotEmpty(String value) {
+        return !isEmpty(value);
+    }
+    
+    /**
+     * 문자열이 "Y"인지 확인 (대소문자 구분 없이)
+     * 
+     * @param value 확인할 문자열
+     * @return true: "Y" 또는 "y", false: 그 외
+     */
+    public static boolean isYes(String value) {
+        return "Y".equalsIgnoreCase(value);
     }
 }

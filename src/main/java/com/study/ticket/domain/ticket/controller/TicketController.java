@@ -1,6 +1,6 @@
 package com.study.ticket.domain.ticket.controller;
 
-import com.study.ticket.domain.ticket.controller.dto.TicketResponse;
+import com.study.ticket.domain.ticket.dto.TicketResponse;
 import com.study.ticket.domain.ticket.domain.entity.MovieTicket;
 import com.study.ticket.domain.ticket.domain.enums.TicketStatus;
 import com.study.ticket.domain.ticket.service.TicketService;

@@ -1,24 +1,21 @@
 package com.study.ticket.domain.movie.controller;
 
-import com.study.ticket.domain.movie.controller.dto.MovieCreateRequest;
-import com.study.ticket.domain.movie.controller.dto.MovieResponse;
-import com.study.ticket.domain.movie.controller.dto.MovieUpdateRequest;
+import com.study.ticket.domain.movie.dto.*;
 import com.study.ticket.domain.movie.domain.entity.Movie;
 import com.study.ticket.domain.movie.domain.enums.Genre;
 import com.study.ticket.domain.movie.service.MovieService;
+import com.study.ticket.global.common.response.ResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 영화 컨트롤러
@@ -29,33 +26,59 @@ import java.util.stream.Collectors;
 @Slf4j
 public class MovieController {
 
+    // 성공 응답 코드
+    private static final String MOVIE_CREATE_SUCCESS = "MOVIE_CREATE_SUCCESS";
+    private static final String MOVIE_GET_SUCCESS = "MOVIE_GET_SUCCESS";
+    private static final String MOVIE_LIST_SUCCESS = "MOVIE_LIST_SUCCESS";
+    private static final String MOVIE_SEARCH_SUCCESS = "MOVIE_SEARCH_SUCCESS";
+    private static final String MOVIE_GENRE_SUCCESS = "MOVIE_GENRE_SUCCESS";
+    private static final String MOVIE_UPCOMING_SUCCESS = "MOVIE_UPCOMING_SUCCESS";
+    private static final String MOVIE_NOW_PLAYING_SUCCESS = "MOVIE_NOW_PLAYING_SUCCESS";
+    private static final String MOVIE_UPDATE_SUCCESS = "MOVIE_UPDATE_SUCCESS";
+    private static final String MOVIE_DELETE_SUCCESS = "MOVIE_DELETE_SUCCESS";
+    
+    // 실패 응답 코드
+    private static final String MOVIE_CREATE_FAILED = "MOVIE_CREATE_FAILED";
+    private static final String MOVIE_GET_FAILED = "MOVIE_GET_FAILED";
+    private static final String MOVIE_LIST_FAILED = "MOVIE_LIST_FAILED";
+    private static final String MOVIE_SEARCH_FAILED = "MOVIE_SEARCH_FAILED";
+    private static final String MOVIE_GENRE_FAILED = "MOVIE_GENRE_FAILED";
+    private static final String MOVIE_UPCOMING_FAILED = "MOVIE_UPCOMING_FAILED";
+    private static final String MOVIE_NOW_PLAYING_FAILED = "MOVIE_NOW_PLAYING_FAILED";
+    private static final String MOVIE_UPDATE_FAILED = "MOVIE_UPDATE_FAILED";
+    private static final String MOVIE_DELETE_FAILED = "MOVIE_DELETE_FAILED";
+
     private final MovieService movieService;
 
     /**
      * 영화를 생성합니다.
-     * @param request 영화 생성 요청
+     * @param movieSaveDto 영화 생성 요청
      * @return 생성된 영화
      */
     @PostMapping
-    public ResponseEntity<MovieResponse> createMovie(@RequestBody MovieCreateRequest request) {
-        log.info("영화 생성 요청: {}", request);
-        
-        Movie movie = movieService.createMovie(
-                request.getTitle(),
-                request.getDescription(),
-                request.getDirector(),
-                request.getActors(),
-                request.getRunningTime(),
-                request.getReleaseDate(),
-                request.getEndDate(),
-                request.getGenre(),
-                request.getRating()
-        );
-        
-        MovieResponse response = MovieResponse.from(movie);
-        return ResponseEntity
-                .created(URI.create("/api/movies/" + movie.getId()))
-                .body(response);
+    public ResponseEntity<ResponseDto<?>> createMovie(@RequestBody MovieSaveDto movieSaveDto) {
+        try {
+            log.info("영화 생성 요청: {}", movieSaveDto);
+            Movie createdMovie = movieService.createMovie(movieSaveDto);
+            MovieResponse movieResponse = MovieResponse.from(createdMovie);
+            
+            ResponseDto<?> response = ResponseDto.builder()
+                .responseCode(MOVIE_CREATE_SUCCESS)
+                .responseMessage("영화가 성공적으로 생성되었습니다.")
+                .data(movieResponse)
+                .build();
+    
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (Exception e) {
+            log.error("영화 생성 실패: {}", e.getMessage(), e);
+            
+            ResponseDto<?> errorResponse = ResponseDto.builder()
+                .responseCode(MOVIE_CREATE_FAILED)
+                .responseMessage("영화 생성에 실패했습니다: " + e.getMessage())
+                .build();
+    
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
     }
 
     /**
@@ -64,90 +87,61 @@ public class MovieController {
      * @return 영화
      */
     @GetMapping("/{movieId}")
-    public ResponseEntity<MovieResponse> getMovie(@PathVariable Long movieId) {
-        log.info("영화 조회 요청: {}", movieId);
-        
-        Movie movie = movieService.getMovie(movieId);
-        MovieResponse response = MovieResponse.from(movie);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<ResponseDto<?>> findMovieDetail(@PathVariable Long movieId) {
+        try {
+            log.info("영화 조회 요청: {}", movieId);
+            MovieDetailDto detail = movieService.findMovieDetail(movieId);
+
+            ResponseDto<?> response = ResponseDto.builder()
+                .responseCode(MOVIE_GET_SUCCESS)
+                .responseMessage("영화 조회에 성공했습니다.")
+                .data(detail)
+                .build();
+    
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("영화 조회 실패: {}", e.getMessage(), e);
+            
+            ResponseDto<?> errorResponse = ResponseDto.builder()
+                .responseCode(MOVIE_GET_FAILED)
+                .responseMessage("영화 조회에 실패했습니다: " + e.getMessage())
+                .build();
+    
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
     }
 
-    /**
-     * 모든 영화를 조회합니다.
-     * @param pageable 페이지 정보
-     * @return 영화 페이지
-     */
-    @GetMapping
-    public ResponseEntity<Page<MovieResponse>> getMovies(@PageableDefault(size = 10) Pageable pageable) {
-        log.info("영화 목록 조회 요청");
-        
-        Page<Movie> movies = movieService.getMovies(pageable);
-        Page<MovieResponse> responses = movies.map(MovieResponse::from);
-        return ResponseEntity.ok(responses);
-    }
 
     /**
-     * 제목으로 영화를 검색합니다.
-     * @param title 영화 제목
+     * 영화 목록을 조회합니다.
+     * @param movieCondDto 영화 검색 조건
      * @param pageable 페이지 정보
-     * @return 영화 페이지
+     * @return 영화 목록
      */
-    @GetMapping("/search")
-    public ResponseEntity<Page<MovieResponse>> searchMoviesByTitle(
-            @RequestParam String title,
-            @PageableDefault(size = 10) Pageable pageable
-    ) {
-        log.info("영화 제목 검색 요청: {}", title);
-        
-        Page<Movie> movies = movieService.searchMoviesByTitle(title, pageable);
-        Page<MovieResponse> responses = movies.map(MovieResponse::from);
-        return ResponseEntity.ok(responses);
-    }
-
-    /**
-     * 장르별 영화를 조회합니다.
-     * @param genre 장르
-     * @param pageable 페이지 정보
-     * @return 영화 페이지
-     */
-    @GetMapping("/genre/{genre}")
-    public ResponseEntity<Page<MovieResponse>> getMoviesByGenre(
-            @PathVariable Genre genre,
-            @PageableDefault(size = 10) Pageable pageable
-    ) {
-        log.info("장르별 영화 목록 조회 요청: {}", genre);
-        
-        Page<Movie> movies = movieService.getMoviesByGenre(genre, pageable);
-        Page<MovieResponse> responses = movies.map(MovieResponse::from);
-        return ResponseEntity.ok(responses);
-    }
-
-    /**
-     * 개봉 예정 영화를 조회합니다.
-     * @param pageable 페이지 정보
-     * @return 영화 페이지
-     */
-    @GetMapping("/upcoming")
-    public ResponseEntity<Page<MovieResponse>> getUpcomingMovies(@PageableDefault(size = 10) Pageable pageable) {
-        log.info("개봉 예정 영화 목록 조회 요청");
-        
-        Page<Movie> movies = movieService.getUpcomingMovies(pageable);
-        Page<MovieResponse> responses = movies.map(MovieResponse::from);
-        return ResponseEntity.ok(responses);
-    }
-
-    /**
-     * 현재 상영 중인 영화를 조회합니다.
-     * @param pageable 페이지 정보
-     * @return 영화 페이지
-     */
-    @GetMapping("/now-playing")
-    public ResponseEntity<Page<MovieResponse>> getNowPlayingMovies(@PageableDefault(size = 10) Pageable pageable) {
-        log.info("현재 상영 중인 영화 목록 조회 요청");
-        
-        Page<Movie> movies = movieService.getNowPlayingMovies(pageable);
-        Page<MovieResponse> responses = movies.map(MovieResponse::from);
-        return ResponseEntity.ok(responses);
+    @GetMapping("/list")
+    public ResponseEntity<ResponseDto<Page<MovieListDto>>> findMovieListWithPaging(@ModelAttribute MovieCondDto movieCondDto, @PageableDefault Pageable pageable) {
+        try {
+            log.info("영화 목록 조회 요청: {}", movieCondDto.toString());
+            
+            Page<MovieListDto> list = movieService.findMovieListWithPaging(movieCondDto, pageable);
+            
+            ResponseDto<Page<MovieListDto>> response = ResponseDto.<Page<MovieListDto>>builder()
+                .responseCode(MOVIE_LIST_SUCCESS)
+                .responseMessage("영화 목록 조회에 성공했습니다.")
+                .data(list)
+                .build();
+    
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("영화 목록 조회 실패: {}", e.getMessage(), e);
+            
+            ResponseDto<Page<MovieListDto>> errorResponse = ResponseDto.<Page<MovieListDto>>builder()
+                .responseCode(MOVIE_LIST_FAILED)
+                .responseMessage("영화 목록 조회에 실패했습니다: " + e.getMessage())
+                .build();
+    
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
     }
 
     /**
@@ -157,27 +151,34 @@ public class MovieController {
      * @return 업데이트된 영화
      */
     @PutMapping("/{movieId}")
-    public ResponseEntity<MovieResponse> updateMovie(
+    public ResponseEntity<ResponseDto<?>> updateMovie(
             @PathVariable Long movieId,
-            @RequestBody MovieUpdateRequest request
+            @RequestBody MovieUpdateDto movieUpdateDto
     ) {
-        log.info("영화 업데이트 요청: {}, {}", movieId, request);
-        
-        Movie movie = movieService.updateMovie(
-                movieId,
-                request.getTitle(),
-                request.getDescription(),
-                request.getDirector(),
-                request.getActors(),
-                request.getRunningTime(),
-                request.getReleaseDate(),
-                request.getEndDate(),
-                request.getGenre(),
-                request.getRating()
-        );
-        
-        MovieResponse response = MovieResponse.from(movie);
-        return ResponseEntity.ok(response);
+        try {
+            log.info("영화 업데이트 요청: {}, {}", movieId, movieUpdateDto);
+
+            Movie movie = movieService.updateMovie(movieId, movieUpdateDto);
+
+            MovieResponse movieResponse = MovieResponse.from(movie);
+
+            ResponseDto<?> response = ResponseDto.builder()
+                .responseCode(MOVIE_UPDATE_SUCCESS)
+                .responseMessage("영화 업데이트에 성공했습니다.")
+                .data(movieResponse)
+                .build();
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("영화 업데이트 실패: {}", e.getMessage(), e);
+
+            ResponseDto<?> errorResponse = ResponseDto.builder()
+                .responseCode(MOVIE_UPDATE_FAILED)
+                .responseMessage("영화 업데이트에 실패했습니다: " + e.getMessage())
+                .build();
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
     }
 
     /**
@@ -186,10 +187,27 @@ public class MovieController {
      * @return 응답 엔티티
      */
     @DeleteMapping("/{movieId}")
-    public ResponseEntity<Void> deleteMovie(@PathVariable Long movieId) {
-        log.info("영화 삭제 요청: {}", movieId);
-        
-        movieService.deleteMovie(movieId);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<ResponseDto<?>> deleteMovie(@PathVariable Long movieId) {
+        try {
+            log.info("영화 삭제 요청: {}", movieId);
+
+            movieService.deleteMovie(movieId);
+
+            ResponseDto<?> response = ResponseDto.builder()
+                .responseCode(MOVIE_DELETE_SUCCESS)
+                .responseMessage("영화 삭제에 성공했습니다.")
+                .build();
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("영화 삭제 실패: {}", e.getMessage(), e);
+
+            ResponseDto<?> errorResponse = ResponseDto.builder()
+                .responseCode(MOVIE_DELETE_FAILED)
+                .responseMessage("영화 삭제에 실패했습니다: " + e.getMessage())
+                .build();
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
     }
 }

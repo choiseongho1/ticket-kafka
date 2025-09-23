@@ -1,4 +1,4 @@
-package com.study.ticket.domain.ticket.controller.dto;
+package com.study.ticket.domain.ticket.dto;
 
 import com.study.ticket.domain.ticket.domain.entity.MovieTicket;
 import com.study.ticket.domain.ticket.domain.enums.TicketStatus;
