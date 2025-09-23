@@ -1,0 +1,949 @@
+{
+	"info": {
+		"_postman_id": "a1b2c3d4-e5f6-g7h8-i9j0-k1l2m3n4o5p6",
+		"name": "티켓 예매 시스템 API",
+		"description": "티켓 예매 시스템의 API 컬렉션입니다.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "영화 API",
+			"item": [
+				{
+					"name": "영화 생성",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"새로운 영화\",\n  \"description\": \"새로운 영화에 대한 설명입니다.\",\n  \"director\": \"홍길동\",\n  \"actors\": \"배우1, 배우2, 배우3\",\n  \"runningTime\": 120,\n  \"releaseDate\": \"2025-10-01\",\n  \"endDate\": \"2025-12-31\",\n  \"genre\": \"ACTION\",\n  \"rating\": \"TWELVE\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/movies",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"movies"
+							]
+						},
+						"description": "새로운 영화를 생성합니다."
+					},
+					"response": []
+				},
+				{
+					"name": "영화 조회 (어벤져스: 엔드게임)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/movies/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"movies",
+								"1"
+							]
+						},
+						"description": "ID로 영화를 조회합니다. (어벤져스: 엔드게임)"
+					},
+					"response": []
+				},
+				{
+					"name": "영화 조회 (기생충)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/movies/2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"movies",
+								"2"
+							]
+						},
+						"description": "ID로 영화를 조회합니다. (기생충)"
+					},
+					"response": []
+				},
+				{
+					"name": "영화 목록 조회",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/movies?page=0&size=10",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"movies"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						},
+						"description": "모든 영화 목록을 페이징하여 조회합니다."
+					},
+					"response": []
+				},
+				{
+					"name": "제목으로 영화 검색 (어벤져스)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/movies/search?title=어벤져스&page=0&size=10",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"movies",
+								"search"
+							],
+							"query": [
+								{
+									"key": "title",
+									"value": "어벤져스"
+								},
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						},
+						"description": "제목으로 영화를 검색합니다."
+					},
+					"response": []
+				},
+				{
+					"name": "장르별 영화 조회 (ACTION)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/movies/genre/ACTION?page=0&size=10",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"movies",
+								"genre",
+								"ACTION"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						},
+						"description": "장르별로 영화를 조회합니다. (ACTION 장르: 어벤져스: 엔드게임, 미션 임파서블: 데드 레코닝)"
+					},
+					"response": []
+				},
+				{
+					"name": "장르별 영화 조회 (SCIENCE_FICTION)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/movies/genre/SCIENCE_FICTION?page=0&size=10",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"movies",
+								"genre",
+								"SCIENCE_FICTION"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						},
+						"description": "장르별로 영화를 조회합니다. (SCIENCE_FICTION 장르: 듄: 파트 2)"
+					},
+					"response": []
+				},
+				{
+					"name": "개봉 예정 영화 조회",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/movies/upcoming?page=0&size=10",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"movies",
+								"upcoming"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						},
+						"description": "개봉 예정인 영화를 조회합니다. (듄: 파트 2)"
+					},
+					"response": []
+				},
+				{
+					"name": "현재 상영 중인 영화 조회",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/movies/now-playing?page=0&size=10",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"movies",
+								"now-playing"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						},
+						"description": "현재 상영 중인 영화를 조회합니다. (어벤져스: 엔드게임, 기생충, 미션 임파서블: 데드 레코닝, 콰이어트 플레이스: 파트 3)"
+					},
+					"response": []
+				},
+				{
+					"name": "영화 업데이트",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"어벤져스: 엔드게임 (수정)\",\n  \"description\": \"인피니티 워 이후 절반만 살아남은 지구, 마지막 희망이 된 어벤져스 (수정)\",\n  \"director\": \"앤서니 루소, 조 루소\",\n  \"actors\": \"로버트 다우니 주니어, 크리스 에반스, 크리스 헴스워스\",\n  \"runningTime\": 181,\n  \"releaseDate\": \"2025-08-24\",\n  \"endDate\": \"2025-10-23\",\n  \"genre\": \"ACTION\",\n  \"rating\": \"TWELVE\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/movies/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"movies",
+								"1"
+							]
+						},
+						"description": "영화 정보를 업데이트합니다."
+					},
+					"response": []
+				},
+				{
+					"name": "영화 삭제",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/movies/5",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"movies",
+								"5"
+							]
+						},
+						"description": "영화를 삭제합니다. (콰이어트 플레이스: 파트 3)"
+					},
+					"response": []
+				}
+			],
+			"description": "영화 관련 API"
+		},
+		{
+			"name": "상영 API",
+			"item": [
+				{
+					"name": "상영 생성",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"movieId\": 1,\n  \"screenName\": \"6관\",\n  \"startTime\": \"2025-09-24T14:00:00\",\n  \"endTime\": \"2025-09-24T17:00:00\",\n  \"totalSeats\": 100,\n  \"price\": 12000\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/screenings",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"screenings"
+							]
+						},
+						"description": "새로운 상영을 생성합니다."
+					},
+					"response": []
+				},
+				{
+					"name": "상영 조회 (어벤져스: 엔드게임 오늘 10:00)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/screenings/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"screenings",
+								"1"
+							]
+						},
+						"description": "ID로 상영을 조회합니다."
+					},
+					"response": []
+				},
+				{
+					"name": "영화별 상영 목록 조회 (어벤져스: 엔드게임)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/screenings/movie/1?page=0&size=10",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"screenings",
+								"movie",
+								"1"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						},
+						"description": "영화별로 상영 목록을 조회합니다. (어벤져스: 엔드게임의 오늘과 내일 상영 일정)"
+					},
+					"response": []
+				},
+				{
+					"name": "영화별 상영 목록 조회 (기생충)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/screenings/movie/2?page=0&size=10",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"screenings",
+								"movie",
+								"2"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						},
+						"description": "영화별로 상영 목록을 조회합니다. (기생충의 오늘과 내일 상영 일정)"
+					},
+					"response": []
+				},
+				{
+					"name": "날짜별 상영 목록 조회 (오늘)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/screenings/date/2025-09-23?page=0&size=10",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"screenings",
+								"date",
+								"2025-09-23"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						},
+						"description": "날짜별로 상영 목록을 조회합니다. (오늘 상영 일정)"
+					},
+					"response": []
+				},
+				{
+					"name": "날짜별 상영 목록 조회 (내일)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/screenings/date/2025-09-24?page=0&size=10",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"screenings",
+								"date",
+								"2025-09-24"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						},
+						"description": "날짜별로 상영 목록을 조회합니다. (내일 상영 일정)"
+					},
+					"response": []
+				}
+			],
+			"description": "상영 관련 API"
+		},
+		{
+			"name": "주문 API",
+			"item": [
+				{
+					"name": "주문 생성",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userId\": 1,\n  \"screeningId\": 1,\n  \"seatNumbers\": [\"A1\", \"A2\"]\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/orders",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"orders"
+							]
+						},
+						"description": "새로운 주문을 생성합니다. (홍길동 사용자가 어벤져스: 엔드게임 오늘 10:00 상영의 A1, A2 좌석 예약)"
+					},
+					"response": []
+				},
+				{
+					"name": "주문 조회",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/orders/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"orders",
+								"1"
+							]
+						},
+						"description": "ID로 주문을 조회합니다."
+					},
+					"response": []
+				},
+				{
+					"name": "주문 취소",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/orders/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"orders",
+								"1"
+							]
+						},
+						"description": "주문을 취소합니다."
+					},
+					"response": []
+				}
+			],
+			"description": "주문 관련 API"
+		},
+		{
+			"name": "결제 API",
+			"item": [
+				{
+					"name": "결제 생성",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"orderId\": 1,\n  \"method\": \"CREDIT_CARD\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/payments",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"payments"
+							]
+						},
+						"description": "새로운 결제를 생성합니다."
+					},
+					"response": []
+				},
+				{
+					"name": "결제 승인",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"paymentKey\": \"payment_key_from_external_system\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/payments/1/approve",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"payments",
+								"1",
+								"approve"
+							]
+						},
+						"description": "결제를 승인합니다."
+					},
+					"response": []
+				},
+				{
+					"name": "결제 취소",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"reason\": \"고객 요청\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/payments/1/cancel",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"payments",
+								"1",
+								"cancel"
+							]
+						},
+						"description": "결제를 취소합니다."
+					},
+					"response": []
+				}
+			],
+			"description": "결제 관련 API"
+		},
+		{
+			"name": "티켓 API",
+			"item": [
+				{
+					"name": "티켓 조회",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/tickets/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"tickets",
+								"1"
+							]
+						},
+						"description": "ID로 티켓을 조회합니다."
+					},
+					"response": []
+				},
+				{
+					"name": "주문별 티켓 목록 조회",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/tickets/order/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"tickets",
+								"order",
+								"1"
+							]
+						},
+						"description": "주문별로 티켓 목록을 조회합니다."
+					},
+					"response": []
+				},
+				{
+					"name": "사용자별 티켓 목록 조회 (홍길동)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/tickets/user/1?page=0&size=10",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"tickets",
+								"user",
+								"1"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						},
+						"description": "사용자별로 티켓 목록을 조회합니다. (홍길동 사용자의 티켓 목록)"
+					},
+					"response": []
+				},
+				{
+					"name": "사용자별 티켓 목록 조회 (김철수)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/tickets/user/2?page=0&size=10",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"tickets",
+								"user",
+								"2"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						},
+						"description": "사용자별로 티켓 목록을 조회합니다. (김철수 사용자의 티켓 목록)"
+					},
+					"response": []
+				},
+				{
+					"name": "티켓 사용",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/tickets/1/use",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"tickets",
+								"1",
+								"use"
+							]
+						},
+						"description": "티켓을 사용 처리합니다."
+					},
+					"response": []
+				}
+			],
+			"description": "티켓 관련 API"
+		},
+		{
+			"name": "사용자 API",
+			"item": [
+				{
+					"name": "사용자 조회 (홍길동)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/users/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"users",
+								"1"
+							]
+						},
+						"description": "ID로 사용자를 조회합니다. (홍길동)"
+					},
+					"response": []
+				},
+				{
+					"name": "사용자 조회 (김철수)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/users/2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"users",
+								"2"
+							]
+						},
+						"description": "ID로 사용자를 조회합니다. (김철수)"
+					},
+					"response": []
+				},
+				{
+					"name": "사용자 조회 (관리자)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/users/3",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"users",
+								"3"
+							]
+						},
+						"description": "ID로 사용자를 조회합니다. (관리자)"
+					},
+					"response": []
+				}
+			],
+			"description": "사용자 관련 API"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		}
+	]
+}
