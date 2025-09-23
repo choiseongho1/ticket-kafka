@@ -273,6 +273,32 @@ public class QueryUtils {
     }
     
     /**
+     * 특정 날짜가 시작 시간과 종료 시간 사이에 있는지 확인하는 Between 조건 (null 안전)
+     * LocalDate와 LocalDateTime 간의 비교를 지원합니다.
+     * 
+     * @param startTimeField 시작 시간 필드
+     * @param endTimeField 종료 시간 필드
+     * @param date 확인할 날짜
+     * @return 조건식 (date가 null이면 null 반환)
+     */
+    public static BooleanExpression between(DateTimePath<LocalDateTime> startTimeField, 
+                                           DateTimePath<LocalDateTime> endTimeField, 
+                                           LocalDate date) {
+        if (date == null) {
+            return null;
+        }
+        
+        // 날짜의 시작(00:00:00)
+        LocalDateTime startOfDay = date.atStartOfDay();
+        // 날짜의 끝(23:59:59.999999999)
+        LocalDateTime endOfDay = date.plusDays(1).atStartOfDay().minusNanos(1);
+        
+        // 상영 시간이 해당 날짜와 겹치는지 확인
+        // (상영 시작 시간이 날짜의 끝보다 이전이고, 상영 종료 시간이 날짜의 시작보다 이후인 경우)
+        return startTimeField.loe(endOfDay).and(endTimeField.goe(startOfDay));
+    }
+    
+    /**
      * 문자열 필드에 대한 like 조건 (null 안전)
      * 
      * @param value 검색할 값 (% 포함 가능)

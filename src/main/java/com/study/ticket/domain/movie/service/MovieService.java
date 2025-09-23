@@ -16,7 +16,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 /**
- * 영화 서비스
+ * Movie 서비스
  */
 @Service
 @RequiredArgsConstructor

@@ -1,5 +1,7 @@
-package com.study.ticket.domain.screening.controller.dto;
+package com.study.ticket.domain.screening.dto;
 
+import com.study.ticket.domain.movie.domain.entity.Movie;
+import com.study.ticket.domain.screening.domain.entity.Screening;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,7 +16,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ScreeningCreateRequest {
+public class ScreeningSaveDto {
 
     /**
      * 영화 ID
@@ -45,4 +47,15 @@ public class ScreeningCreateRequest {
      * 티켓 가격
      */
     private Integer price;
+
+    public Screening toEntity(Movie movie){
+        return Screening.builder()
+                .movie(movie)
+                .screenName(screenName)
+                .startTime(startTime)
+                .endTime(endTime)
+                .totalSeats(totalSeats)
+                .price(price)
+                .build();
+    }
 }

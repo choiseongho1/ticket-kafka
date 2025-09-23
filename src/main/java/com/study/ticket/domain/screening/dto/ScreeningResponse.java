@@ -1,4 +1,4 @@
-package com.study.ticket.domain.screening.controller.dto;
+package com.study.ticket.domain.screening.dto;
 
 import com.study.ticket.domain.screening.domain.entity.Screening;
 import lombok.AllArgsConstructor;

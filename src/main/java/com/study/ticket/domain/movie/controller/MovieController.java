@@ -30,10 +30,6 @@ public class MovieController {
     private static final String MOVIE_CREATE_SUCCESS = "MOVIE_CREATE_SUCCESS";
     private static final String MOVIE_GET_SUCCESS = "MOVIE_GET_SUCCESS";
     private static final String MOVIE_LIST_SUCCESS = "MOVIE_LIST_SUCCESS";
-    private static final String MOVIE_SEARCH_SUCCESS = "MOVIE_SEARCH_SUCCESS";
-    private static final String MOVIE_GENRE_SUCCESS = "MOVIE_GENRE_SUCCESS";
-    private static final String MOVIE_UPCOMING_SUCCESS = "MOVIE_UPCOMING_SUCCESS";
-    private static final String MOVIE_NOW_PLAYING_SUCCESS = "MOVIE_NOW_PLAYING_SUCCESS";
     private static final String MOVIE_UPDATE_SUCCESS = "MOVIE_UPDATE_SUCCESS";
     private static final String MOVIE_DELETE_SUCCESS = "MOVIE_DELETE_SUCCESS";
     
@@ -41,10 +37,6 @@ public class MovieController {
     private static final String MOVIE_CREATE_FAILED = "MOVIE_CREATE_FAILED";
     private static final String MOVIE_GET_FAILED = "MOVIE_GET_FAILED";
     private static final String MOVIE_LIST_FAILED = "MOVIE_LIST_FAILED";
-    private static final String MOVIE_SEARCH_FAILED = "MOVIE_SEARCH_FAILED";
-    private static final String MOVIE_GENRE_FAILED = "MOVIE_GENRE_FAILED";
-    private static final String MOVIE_UPCOMING_FAILED = "MOVIE_UPCOMING_FAILED";
-    private static final String MOVIE_NOW_PLAYING_FAILED = "MOVIE_NOW_PLAYING_FAILED";
     private static final String MOVIE_UPDATE_FAILED = "MOVIE_UPDATE_FAILED";
     private static final String MOVIE_DELETE_FAILED = "MOVIE_DELETE_FAILED";
 
@@ -59,13 +51,11 @@ public class MovieController {
     public ResponseEntity<ResponseDto<?>> createMovie(@RequestBody MovieSaveDto movieSaveDto) {
         try {
             log.info("영화 생성 요청: {}", movieSaveDto);
-            Movie createdMovie = movieService.createMovie(movieSaveDto);
-            MovieResponse movieResponse = MovieResponse.from(createdMovie);
-            
+            movieService.createMovie(movieSaveDto);
+
             ResponseDto<?> response = ResponseDto.builder()
                 .responseCode(MOVIE_CREATE_SUCCESS)
                 .responseMessage("영화가 성공적으로 생성되었습니다.")
-                .data(movieResponse)
                 .build();
     
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -158,14 +148,11 @@ public class MovieController {
         try {
             log.info("영화 업데이트 요청: {}, {}", movieId, movieUpdateDto);
 
-            Movie movie = movieService.updateMovie(movieId, movieUpdateDto);
-
-            MovieResponse movieResponse = MovieResponse.from(movie);
+            movieService.updateMovie(movieId, movieUpdateDto);
 
             ResponseDto<?> response = ResponseDto.builder()
                 .responseCode(MOVIE_UPDATE_SUCCESS)
                 .responseMessage("영화 업데이트에 성공했습니다.")
-                .data(movieResponse)
                 .build();
 
             return ResponseEntity.ok(response);
