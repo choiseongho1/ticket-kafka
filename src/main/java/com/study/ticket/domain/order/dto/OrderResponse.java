@@ -1,4 +1,4 @@
-package com.study.ticket.domain.order.controller.dto;
+package com.study.ticket.domain.order.dto;
 
 import com.study.ticket.domain.order.domain.entity.Order;
 import com.study.ticket.domain.order.domain.entity.OrderItem;

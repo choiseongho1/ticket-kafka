@@ -4,6 +4,10 @@ import com.study.ticket.domain.movie.domain.entity.Movie;
 import com.study.ticket.domain.movie.domain.enums.Genre;
 import com.study.ticket.domain.movie.domain.enums.Rating;
 import com.study.ticket.domain.movie.domain.repository.MovieRepository;
+import com.study.ticket.domain.order.domain.entity.Order;
+import com.study.ticket.domain.order.domain.entity.OrderItem;
+import com.study.ticket.domain.order.domain.enums.OrderStatus;
+import com.study.ticket.domain.order.domain.repository.OrderRepository;
 import com.study.ticket.domain.screening.domain.entity.Screening;
 import com.study.ticket.domain.screening.domain.repository.ScreeningRepository;
 import com.study.ticket.domain.user.domain.entity.User;
@@ -32,7 +36,7 @@ public class DataInit {
     private final MovieRepository movieRepository;
     private final ScreeningRepository screeningRepository;
     private final UserRepository userRepository;
-
+    private final OrderRepository orderRepository;
     /**
      * 개발 환경에서만 실행되는 초기 데이터 로드 메서드
      * @return CommandLineRunner 인스턴스
@@ -42,26 +46,30 @@ public class DataInit {
     public CommandLineRunner initData() {
         return args -> {
             log.info("초기 데이터 로딩 시작");
-            
+
             // 사용자 데이터 초기화
-            initUsers();
-            
+            List<User> users = initUsers();
+
             // 영화 데이터 초기화
             List<Movie> movies = initMovies();
-            
+
             // 상영 데이터 초기화
-            initScreenings(movies);
-            
+            List<Screening> screenings = initScreenings(movies);
+
+            // 주문 데이터 초기화
+            initOrders(users, screenings);
+
             log.info("초기 데이터 로딩 완료");
         };
     }
 
     /**
      * 사용자 데이터 초기화
+     * @return 생성된 사용자 목록
      */
-    private void initUsers() {
+    private List<User> initUsers() {
         log.info("사용자 데이터 초기화 시작");
-        
+
         // 테스트 사용자 생성
         User user1 = User.builder()
                 .name("홍길동")
@@ -71,7 +79,7 @@ public class DataInit {
                 .role("USER")
                 .enabled(true)
                 .build();
-        
+
         User user2 = User.builder()
                 .name("김철수")
                 .email("user2@example.com")
@@ -80,7 +88,7 @@ public class DataInit {
                 .role("USER")
                 .enabled(true)
                 .build();
-        
+
         // 관리자 계정
         User admin = User.builder()
                 .name("관리자")
@@ -90,10 +98,12 @@ public class DataInit {
                 .role("ADMIN")
                 .enabled(true)
                 .build();
-        
-        userRepository.saveAll(Arrays.asList(user1, user2, admin));
-        
+
+        List<User> users = userRepository.saveAll(Arrays.asList(user1, user2, admin));
+
         log.info("사용자 데이터 초기화 완료: {} 명", userRepository.count());
+
+        return users;
     }
 
     /**
@@ -177,25 +187,26 @@ public class DataInit {
     /**
      * 상영 데이터 초기화
      * @param movies 영화 목록
+     * @return 생성된 상영 목록
      */
-    private void initScreenings(List<Movie> movies) {
+    private List<Screening> initScreenings(List<Movie> movies) {
         log.info("상영 데이터 초기화 시작");
-        
+
         LocalDate today = LocalDate.now();
         LocalDate tomorrow = today.plusDays(1);
-        
+
         // 오늘 상영 - 어벤져스: 엔드게임
-        createScreeningsForMovie(movies.get(0), today, 
+        createScreeningsForMovie(movies.get(0), today,
                 Arrays.asList(
-                        LocalTime.of(10, 0), 
-                        LocalTime.of(13, 30), 
-                        LocalTime.of(17, 0), 
+                        LocalTime.of(10, 0),
+                        LocalTime.of(13, 30),
+                        LocalTime.of(17, 0),
                         LocalTime.of(20, 30)
                 ),
                 Arrays.asList("1관", "2관", "1관", "2관"),
                 Arrays.asList(12000, 14000, 14000, 16000)
         );
-        
+
         // 오늘 상영 - 기생충
         createScreeningsForMovie(movies.get(1), today,
                 Arrays.asList(
@@ -206,7 +217,7 @@ public class DataInit {
                 Arrays.asList("3관", "3관", "3관"),
                 Arrays.asList(12000, 14000, 14000)
         );
-        
+
         // 내일 상영 - 어벤져스: 엔드게임
         createScreeningsForMovie(movies.get(0), tomorrow,
                 Arrays.asList(
@@ -218,7 +229,7 @@ public class DataInit {
                 Arrays.asList("1관", "2관", "1관", "2관"),
                 Arrays.asList(12000, 14000, 14000, 16000)
         );
-        
+
         // 내일 상영 - 기생충
         createScreeningsForMovie(movies.get(1), tomorrow,
                 Arrays.asList(
@@ -229,7 +240,7 @@ public class DataInit {
                 Arrays.asList("3관", "3관", "3관"),
                 Arrays.asList(12000, 14000, 14000)
         );
-        
+
         // 내일 상영 - 미션 임파서블
         createScreeningsForMovie(movies.get(3), tomorrow,
                 Arrays.asList(
@@ -240,7 +251,7 @@ public class DataInit {
                 Arrays.asList("4관", "4관", "4관"),
                 Arrays.asList(12000, 14000, 14000)
         );
-        
+
         // 내일 상영 - 콰이어트 플레이스
         createScreeningsForMovie(movies.get(4), tomorrow,
                 Arrays.asList(
@@ -252,8 +263,11 @@ public class DataInit {
                 Arrays.asList("5관", "5관", "5관", "5관"),
                 Arrays.asList(12000, 14000, 14000, 12000)
         );
-        
+
         log.info("상영 데이터 초기화 완료: {} 개", screeningRepository.count());
+
+        // 생성된 상영 정보 반환
+        return screeningRepository.findAll();
     }
     
     /**
@@ -286,5 +300,112 @@ public class DataInit {
             
             screeningRepository.save(screening);
         }
+    }
+
+    /**
+     * 주문 데이터 초기화
+     * @param users 사용자 목록
+     * @param screenings 상영 목록
+     */
+    private void initOrders(List<User> users, List<Screening> screenings) {
+        log.info("주문 데이터 초기화 시작");
+
+        // 이미 주문 데이터가 있는지 확인
+        if (orderRepository.count() > 0) {
+            log.info("주문 데이터가 이미 존재합니다. 초기화를 건너뜁니다.");
+            return;
+        }
+
+        // 첫 번째 사용자의 완료된 주문
+        createOrder(
+            users.get(0),
+            screenings.get(0),
+            "ORD-20250924-00001",
+            OrderStatus.COMPLETED,
+            Arrays.asList("A1", "A2"),
+            LocalDateTime.now().minusHours(2)
+        );
+
+        // 두 번째 사용자의 완료된 주문
+        createOrder(
+            users.get(1),
+            screenings.get(1),
+            "ORD-20250924-00002",
+            OrderStatus.COMPLETED,
+            Arrays.asList("B1", "B2", "B3"),
+            LocalDateTime.now().minusHours(1)
+        );
+
+        // 첫 번째 사용자의 결제 대기 중인 주문
+        createOrder(
+            users.get(0),
+            screenings.get(2),
+            "ORD-20250924-00003",
+            OrderStatus.PAYMENT_PENDING,
+            Arrays.asList("C1"),
+            LocalDateTime.now().minusMinutes(30)
+        );
+
+        // 두 번째 사용자의 생성된 주문
+        createOrder(
+            users.get(1),
+            screenings.get(3),
+            "ORD-20250924-00004",
+            OrderStatus.CREATED,
+            Arrays.asList("D1", "D2"),
+            LocalDateTime.now().minusMinutes(15)
+        );
+
+        // 첫 번째 사용자의 취소된 주문
+        createOrder(
+            users.get(0),
+            screenings.get(4),
+            "ORD-20250924-00005",
+            OrderStatus.CANCELLED,
+            Arrays.asList("E1", "E2"),
+            LocalDateTime.now().minusMinutes(45)
+        );
+
+        log.info("주문 데이터 초기화 완료: {} 개", orderRepository.count());
+    }
+
+    /**
+     * 주문 생성 헬퍼 메서드
+     * @param user 사용자
+     * @param screening 상영
+     * @param orderNumber 주문 번호
+     * @param status 주문 상태
+     * @param seatNumbers 좌석 번호 목록
+     * @param createdAt 생성 시간
+     */
+    private void createOrder(User user, Screening screening, String orderNumber, OrderStatus status, List<String> seatNumbers, LocalDateTime createdAt) {
+        // 주문 생성
+        Order order = Order.builder()
+                .orderNumber(orderNumber)
+                .user(user)
+                .screening(screening)
+                .seatCount(seatNumbers.size())
+                .totalAmount(screening.getPrice() * seatNumbers.size())
+                .status(status)
+                .paymentDeadline(createdAt.plusHours(3))
+                .build();
+
+        // 주문 항목 추가
+        for (String seatNumber : seatNumbers) {
+            OrderItem orderItem = OrderItem.builder()
+                    .seatNumber(seatNumber)
+                    .price(screening.getPrice())
+                    .build();
+            order.addOrderItem(orderItem);
+        }
+
+        // 상영 좌석 예약 처리 (취소된 주문은 제외)
+        if (status != OrderStatus.CANCELLED) {
+            screening.reserve(seatNumbers.size());
+            screeningRepository.save(screening);
+        }
+
+        // 주문 저장
+        orderRepository.save(order);
     }
 }

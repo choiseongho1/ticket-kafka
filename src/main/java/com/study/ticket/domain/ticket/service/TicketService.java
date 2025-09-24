@@ -82,7 +82,7 @@ public class TicketService {
         }
         
         // 주문 상태 업데이트
-        orderService.completeOrder(orderId);
+//        orderService.completeOrder(orderId);
         
         log.info("티켓 발급 완료: 주문 ID={}, 티켓 수={}", orderId, tickets.size());
         return tickets;

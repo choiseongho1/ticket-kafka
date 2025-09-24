@@ -20,7 +20,7 @@ public class OutboxEventScheduler {
     /**
      * 5초마다 이벤트를 발행합니다.
      */
-    @Scheduled(fixedDelayString = "${outbox.scheduler.publish.interval:5000}")
+//    @Scheduled(fixedDelayString = "${outbox.scheduler.publish.interval:5000}")
     public void publishEvents() {
         try {
             log.debug("이벤트 발행 스케줄러 실행");
@@ -36,7 +36,7 @@ public class OutboxEventScheduler {
     /**
      * 1분마다 실패한 이벤트를 재시도합니다.
      */
-    @Scheduled(fixedDelayString = "${outbox.scheduler.retry.interval:60000}")
+//    @Scheduled(fixedDelayString = "${outbox.scheduler.retry.interval:60000}")
     public void retryFailedEvents() {
         try {
             log.debug("실패한 이벤트 재시도 스케줄러 실행");

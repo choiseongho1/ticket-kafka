@@ -64,7 +64,7 @@ public class PaymentService {
                 .build();
         
         // 주문 상태 변경
-        orderService.waitForPayment(orderId);
+//        orderService.waitForPayment(orderId);
         
         // 결제 저장
         return paymentRepository.save(payment);

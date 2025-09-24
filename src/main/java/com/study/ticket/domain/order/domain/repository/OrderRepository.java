@@ -18,7 +18,7 @@ import java.util.Optional;
 /**
  * 주문 리포지토리 인터페이스
  */
-public interface OrderRepository extends JpaRepository<Order, Long> {
+public interface OrderRepository extends JpaRepository<Order, Long>, OrderDslRepository {
 
     /**
      * 주문 번호로 주문을 조회합니다.
