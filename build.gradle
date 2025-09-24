@@ -25,14 +25,15 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
 
     // QueryDSL 의존성 추가
-    implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+    implementation 'com.querydsl:querydsl-jpa:5.1.0:jakarta'
 
     // Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
     // QueryDSL APT
-    annotationProcessor 'com.querydsl:querydsl-apt:5.0.0:jakarta'
+    // 기존 QueryDSL 의존성을 아래와 같이 변경
+    annotationProcessor 'com.querydsl:querydsl-apt:5.1.0:jakarta'
     annotationProcessor 'jakarta.annotation:jakarta.annotation-api'
     annotationProcessor 'jakarta.persistence:jakarta.persistence-api'
 
