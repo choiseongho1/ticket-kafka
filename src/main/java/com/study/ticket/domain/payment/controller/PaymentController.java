@@ -1,9 +1,6 @@
 package com.study.ticket.domain.payment.controller;
 
-import com.study.ticket.domain.payment.controller.dto.PaymentApproveRequest;
-import com.study.ticket.domain.payment.controller.dto.PaymentCancelRequest;
-import com.study.ticket.domain.payment.controller.dto.PaymentCreateRequest;
-import com.study.ticket.domain.payment.controller.dto.PaymentResponse;
+import com.study.ticket.domain.payment.dto.*;
 import com.study.ticket.domain.payment.domain.entity.Payment;
 import com.study.ticket.domain.payment.service.PaymentService;
 import com.study.ticket.global.common.response.ResponseDto;
@@ -12,8 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.net.URI;
 
 /**
  * 결제 컨트롤러
@@ -44,28 +39,21 @@ public class PaymentController {
      * @return 생성된 결제
      */
     @PostMapping
-    public ResponseEntity<ResponseDto<PaymentResponse>> createPayment(@RequestBody PaymentCreateRequest request) {
+    public ResponseEntity<ResponseDto<?>> createPayment(@RequestBody PaymentSaveDto paymentSaveDto) {
         try {
-            log.info("결제 생성 요청: {}", request);
+
+            paymentService.createPayment(paymentSaveDto);
             
-            Payment payment = paymentService.createPayment(
-                    request.getOrderId(),
-                    request.getMethod()
-            );
-            
-            PaymentResponse response = PaymentResponse.from(payment);
-            
-            ResponseDto<PaymentResponse> responseDto = ResponseDto.<PaymentResponse>builder()
+            ResponseDto<?> responseDto = ResponseDto.builder()
                 .responseCode(PAYMENT_CREATE_SUCCESS)
                 .responseMessage("결제가 성공적으로 생성되었습니다.")
-                .data(response)
                 .build();
             
             return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
         } catch (Exception e) {
             log.error("결제 생성 실패: {}", e.getMessage(), e);
             
-            ResponseDto<PaymentResponse> errorResponse = ResponseDto.<PaymentResponse>builder()
+            ResponseDto<?> errorResponse = ResponseDto.builder()
                 .responseCode(PAYMENT_CREATE_FAILED)
                 .responseMessage("결제 생성에 실패했습니다: " + e.getMessage())
                 .build();
@@ -80,28 +68,58 @@ public class PaymentController {
      * @return 결제
      */
     @GetMapping("/{paymentId}")
-    public ResponseEntity<ResponseDto<PaymentResponse>> getPayment(@PathVariable Long paymentId) {
+    public ResponseEntity<ResponseDto<PaymentDetailDto>> findPaymentDetailByPaymentId(@PathVariable Long paymentId) {
         try {
             log.info("결제 조회 요청: {}", paymentId);
             
-            Payment payment = paymentService.getPayment(paymentId);
-            PaymentResponse response = PaymentResponse.from(payment);
-            
-            ResponseDto<PaymentResponse> responseDto = ResponseDto.<PaymentResponse>builder()
+            PaymentDetailDto detail = paymentService.findPaymentDetailByPaymentId(paymentId);
+
+            ResponseDto<PaymentDetailDto> responseDto = ResponseDto.<PaymentDetailDto>builder()
                 .responseCode(PAYMENT_GET_SUCCESS)
                 .responseMessage("결제 조회에 성공했습니다.")
-                .data(response)
+                .data(detail)
                 .build();
             
             return ResponseEntity.ok(responseDto);
         } catch (Exception e) {
             log.error("결제 조회 실패: {}", e.getMessage(), e);
             
-            ResponseDto<PaymentResponse> errorResponse = ResponseDto.<PaymentResponse>builder()
+            ResponseDto<PaymentDetailDto> errorResponse = ResponseDto.<PaymentDetailDto>builder()
                 .responseCode(PAYMENT_GET_FAILED)
                 .responseMessage("결제 조회에 실패했습니다: " + e.getMessage())
                 .build();
             
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+
+    /**
+     * 주문에 대한 결제를 조회합니다.
+     * @param orderId 주문 ID
+     * @return 결제
+     */
+    @GetMapping("/order/{orderId}")
+    public ResponseEntity<ResponseDto<PaymentDetailDto>> findPaymentDetailByOrderId(@PathVariable Long orderId) {
+        try {
+            log.info("주문에 대한 결제 조회 요청: {}", orderId);
+
+            PaymentDetailDto detail = paymentService.findPaymentDetailByOrderId(orderId);
+
+            ResponseDto<PaymentDetailDto> responseDto = ResponseDto.<PaymentDetailDto>builder()
+                .responseCode(PAYMENT_GET_SUCCESS)
+                .responseMessage("결제 조회에 성공했습니다.")
+                .data(detail)
+                .build();
+
+            return ResponseEntity.ok(responseDto);
+        } catch (Exception e) {
+            log.error("주문에 대한 결제 조회 실패: {}", e.getMessage(), e);
+
+            ResponseDto<PaymentDetailDto> errorResponse = ResponseDto.<PaymentDetailDto>builder()
+                .responseCode(PAYMENT_GET_FAILED)
+                .responseMessage("결제 조회에 실패했습니다: " + e.getMessage())
+                .build();
+
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
@@ -113,35 +131,29 @@ public class PaymentController {
      * @return 승인된 결제
      */
     @PostMapping("/{paymentId}/approve")
-    public ResponseEntity<ResponseDto<PaymentResponse>> approvePayment(
+    public ResponseEntity<ResponseDto<?>> approvePayment(
             @PathVariable Long paymentId,
-            @RequestBody PaymentApproveRequest request
+            @RequestBody PaymentApproveDto paymentApproveDto
     ) {
         try {
-            log.info("결제 승인 요청: {}, {}", paymentId, request);
-            
-            Payment payment = paymentService.approvePayment(
-                    paymentId,
-                    request.getPaymentKey()
-            );
-            
-            PaymentResponse response = PaymentResponse.from(payment);
-            
-            ResponseDto<PaymentResponse> responseDto = ResponseDto.<PaymentResponse>builder()
+
+            paymentService.approvePayment(paymentId, paymentApproveDto);
+
+
+            ResponseDto<?> responseDto = ResponseDto.builder()
                 .responseCode(PAYMENT_APPROVE_SUCCESS)
                 .responseMessage("결제 승인에 성공했습니다.")
-                .data(response)
                 .build();
-            
+
             return ResponseEntity.ok(responseDto);
         } catch (Exception e) {
             log.error("결제 승인 실패: {}", e.getMessage(), e);
-            
-            ResponseDto<PaymentResponse> errorResponse = ResponseDto.<PaymentResponse>builder()
+
+            ResponseDto<?> errorResponse = ResponseDto.builder()
                 .responseCode(PAYMENT_APPROVE_FAILED)
                 .responseMessage("결제 승인에 실패했습니다: " + e.getMessage())
                 .build();
-            
+
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
@@ -153,68 +165,32 @@ public class PaymentController {
      * @return 취소된 결제
      */
     @PostMapping("/{paymentId}/cancel")
-    public ResponseEntity<ResponseDto<PaymentResponse>> cancelPayment(
+    public ResponseEntity<ResponseDto<?>> cancelPayment(
             @PathVariable Long paymentId,
-            @RequestBody PaymentCancelRequest request
+            @RequestBody PaymentCancelDto paymentCancelDto
     ) {
         try {
-            log.info("결제 취소 요청: {}, {}", paymentId, request);
-            
-            Payment payment = paymentService.cancelPayment(
-                    paymentId,
-                    request.getReason()
-            );
-            
-            PaymentResponse response = PaymentResponse.from(payment);
-            
-            ResponseDto<PaymentResponse> responseDto = ResponseDto.<PaymentResponse>builder()
+
+            paymentService.cancelPayment(paymentId,paymentCancelDto);
+
+
+            ResponseDto<?> responseDto = ResponseDto.builder()
                 .responseCode(PAYMENT_CANCEL_SUCCESS)
                 .responseMessage("결제 취소에 성공했습니다.")
-                .data(response)
                 .build();
-            
+
             return ResponseEntity.ok(responseDto);
         } catch (Exception e) {
             log.error("결제 취소 실패: {}", e.getMessage(), e);
-            
-            ResponseDto<PaymentResponse> errorResponse = ResponseDto.<PaymentResponse>builder()
+
+            ResponseDto<?> errorResponse = ResponseDto.builder()
                 .responseCode(PAYMENT_CANCEL_FAILED)
                 .responseMessage("결제 취소에 실패했습니다: " + e.getMessage())
                 .build();
-            
+
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
-    
-    /**
-     * 주문에 대한 결제를 조회합니다.
-     * @param orderId 주문 ID
-     * @return 결제
-     */
-    @GetMapping("/order/{orderId}")
-    public ResponseEntity<ResponseDto<PaymentResponse>> getPaymentByOrder(@PathVariable Long orderId) {
-        try {
-            log.info("주문에 대한 결제 조회 요청: {}", orderId);
-            
-            Payment payment = paymentService.getPaymentByOrder(orderId);
-            PaymentResponse response = PaymentResponse.from(payment);
-            
-            ResponseDto<PaymentResponse> responseDto = ResponseDto.<PaymentResponse>builder()
-                .responseCode(PAYMENT_GET_SUCCESS)
-                .responseMessage("결제 조회에 성공했습니다.")
-                .data(response)
-                .build();
-            
-            return ResponseEntity.ok(responseDto);
-        } catch (Exception e) {
-            log.error("주문에 대한 결제 조회 실패: {}", e.getMessage(), e);
-            
-            ResponseDto<PaymentResponse> errorResponse = ResponseDto.<PaymentResponse>builder()
-                .responseCode(PAYMENT_GET_FAILED)
-                .responseMessage("결제 조회에 실패했습니다: " + e.getMessage())
-                .build();
-            
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
-        }
-    }
+
+
 }

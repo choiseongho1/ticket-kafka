@@ -48,7 +48,7 @@ public class OrderService {
      * @return 생성된 주문
      */
     @Transactional
-    public Order createOrder(OrderSaveDto orderSaveDto) {
+    public void createOrder(OrderSaveDto orderSaveDto) {
         // 사용자 조회
         User user = userRepository.findById(orderSaveDto.getUserId())
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없음: " + orderSaveDto.getUserId()));
@@ -90,7 +90,6 @@ public class OrderService {
         );
         
         log.info("주문 생성 완료: {}", savedOrder.getOrderNumber());
-        return savedOrder;
     }
     
     /**
@@ -135,9 +134,9 @@ public class OrderService {
      * @return 취소된 주문
      */
     @Transactional
-    public Order cancelOrder(Long orderId) {
+    public void cancelOrder(Long orderId) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("주문 정보를 찾을 수 없음: " + orderId));;
+                .orElseThrow(() -> new RuntimeException("주문 정보를 찾을 수 없음: " + orderId));
 
         // 이미 취소된 주문인지 확인
         if (order.getStatus() == OrderStatus.CANCELLED) {
@@ -166,33 +165,34 @@ public class OrderService {
         );
 
         log.info("주문 취소 완료: {}", order.getOrderNumber());
-        return orderRepository.save(order);
+        orderRepository.save(order);
     }
 
     
-//    /**
-//     * 주문을 결제 대기 상태로 변경합니다.
-//     * @param orderId 주문 ID
-//     * @return 업데이트된 주문
-//     */
-//    @Transactional
-//    public Order waitForPayment(Long orderId) {
-//        Order order = getOrder(orderId);
-//        order.waitForPayment();
-//        return orderRepository.save(order);
-//    }
-//
+    /**
+     * 주문을 결제 대기 상태로 변경합니다.
+     * @param orderId 주문 ID
+     */
+    @Transactional
+    public void waitForPayment(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("주문 정보를 찾을 수 없음: " + orderId));;
+        order.waitForPayment();
+        orderRepository.save(order);
+    }
 
-//
-//    /**
-//     * 주문을 완료 상태로 변경합니다.
-//     * @param orderId 주문 ID
-//     * @return 완료된 주문
-//     */
-//    @Transactional
-//    public Order completeOrder(Long orderId) {
-//        Order order = getOrder(orderId);
-//        order.complete();
-//        return orderRepository.save(order);
-//    }
+
+
+    /**
+     * 주문을 완료 상태로 변경합니다.
+     * @param orderId 주문 ID
+     * @return 완료된 주문
+     */
+    @Transactional
+    public Order completeOrder(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("주문 정보를 찾을 수 없음: " + orderId));;
+        order.complete();
+        return orderRepository.save(order);
+    }
 }

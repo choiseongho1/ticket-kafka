@@ -1,5 +1,6 @@
-package com.study.ticket.domain.payment.controller.dto;
+package com.study.ticket.domain.payment.dto;
 
+import com.querydsl.core.annotations.QueryProjection;
 import com.study.ticket.domain.payment.domain.entity.Payment;
 import com.study.ticket.domain.payment.domain.enums.PaymentMethod;
 import com.study.ticket.domain.payment.domain.enums.PaymentStatus;
@@ -16,8 +17,7 @@ import java.time.LocalDateTime;
 @Data
 @Builder
 @NoArgsConstructor
-@AllArgsConstructor
-public class PaymentResponse {
+public class PaymentDetailDto {
 
     /**
      * 결제 ID
@@ -79,25 +79,19 @@ public class PaymentResponse {
      */
     private LocalDateTime createdAt;
 
-    /**
-     * 결제 엔티티를 DTO로 변환합니다.
-     * @param payment 결제 엔티티
-     * @return 결제 응답 DTO
-     */
-    public static PaymentResponse from(Payment payment) {
-        return PaymentResponse.builder()
-                .id(payment.getId())
-                .paymentNumber(payment.getPaymentNumber())
-                .orderId(payment.getOrder().getId())
-                .orderNumber(payment.getOrder().getOrderNumber())
-                .amount(payment.getAmount())
-                .method(payment.getMethod())
-                .status(payment.getStatus())
-                .paymentKey(payment.getPaymentKey())
-                .paymentTime(payment.getPaymentTime())
-                .cancelTime(payment.getCancelTime())
-                .cancelReason(payment.getCancelReason())
-                .createdAt(payment.getCreatedAt())
-                .build();
+    @QueryProjection
+    public PaymentDetailDto (Long id, String paymentNumber, Long orderId, String orderNumber, Integer amount, PaymentMethod method, PaymentStatus status, String paymentKey, LocalDateTime paymentTime, LocalDateTime cancelTime, String cancelReason, LocalDateTime createdAt){
+        this.id = id;
+        this.paymentNumber = paymentNumber;
+        this.orderId = orderId;
+        this.orderNumber = orderNumber;
+        this.amount = amount;
+        this.method = method;
+        this.status = status;
+        this.paymentKey = paymentKey;
+        this.paymentTime = paymentTime;
+        this.cancelTime = cancelTime;
+        this.cancelReason = cancelReason;
+        this.createdAt = createdAt;
     }
 }

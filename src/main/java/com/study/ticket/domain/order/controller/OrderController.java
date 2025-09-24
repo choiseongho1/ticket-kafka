@@ -1,8 +1,10 @@
 package com.study.ticket.domain.order.controller;
 
-import com.study.ticket.domain.order.dto.*;
 import com.study.ticket.domain.order.domain.entity.Order;
-import com.study.ticket.domain.order.domain.enums.OrderStatus;
+import com.study.ticket.domain.order.dto.OrderCondDto;
+import com.study.ticket.domain.order.dto.OrderDetailDto;
+import com.study.ticket.domain.order.dto.OrderListDto;
+import com.study.ticket.domain.order.dto.OrderSaveDto;
 import com.study.ticket.domain.order.service.OrderService;
 import com.study.ticket.global.common.response.ResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -43,24 +45,22 @@ public class OrderController {
      * @return 생성된 주문
      */
     @PostMapping
-    public ResponseEntity<ResponseDto<OrderResponse>> createOrder(@RequestBody OrderSaveDto orderSaveDto) {
+    public ResponseEntity<ResponseDto<?>> createOrder(@RequestBody OrderSaveDto orderSaveDto) {
         try {
             log.info("주문 생성 요청: {}", orderSaveDto);
             
-            Order order = orderService.createOrder(orderSaveDto);
-            OrderResponse response = OrderResponse.from(order);
-            
-            ResponseDto<OrderResponse> responseDto = ResponseDto.<OrderResponse>builder()
+            orderService.createOrder(orderSaveDto);
+
+            ResponseDto<?> responseDto = ResponseDto.builder()
                 .responseCode(ORDER_CREATE_SUCCESS)
                 .responseMessage("주문이 성공적으로 생성되었습니다.")
-                .data(response)
                 .build();
             
             return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
         } catch (Exception e) {
             log.error("주문 생성 실패: {}", e.getMessage(), e);
             
-            ResponseDto<OrderResponse> errorResponse = ResponseDto.<OrderResponse>builder()
+            ResponseDto<?> errorResponse = ResponseDto.builder()
                 .responseCode(ORDER_CREATE_FAILED)
                 .responseMessage("주문 생성에 실패했습니다: " + e.getMessage())
                 .build();
@@ -173,24 +173,22 @@ public class OrderController {
      * @return 취소된 주문
      */
     @DeleteMapping("/{orderId}")
-    public ResponseEntity<ResponseDto<OrderResponse>> cancelOrder(@PathVariable Long orderId) {
+    public ResponseEntity<ResponseDto<?>> cancelOrder(@PathVariable Long orderId) {
         try {
             log.info("주문 취소 요청: {}", orderId);
 
-            Order order = orderService.cancelOrder(orderId);
-            OrderResponse response = OrderResponse.from(order);
+            orderService.cancelOrder(orderId);
 
-            ResponseDto<OrderResponse> responseDto = ResponseDto.<OrderResponse>builder()
+            ResponseDto<?> responseDto = ResponseDto.builder()
                 .responseCode(ORDER_CANCEL_SUCCESS)
                 .responseMessage("주문 취소에 성공했습니다.")
-                .data(response)
                 .build();
 
             return ResponseEntity.ok(responseDto);
         } catch (Exception e) {
             log.error("주문 취소 실패: {}", e.getMessage(), e);
 
-            ResponseDto<OrderResponse> errorResponse = ResponseDto.<OrderResponse>builder()
+            ResponseDto<?> errorResponse = ResponseDto.builder()
                 .responseCode(ORDER_CANCEL_FAILED)
                 .responseMessage("주문 취소에 실패했습니다: " + e.getMessage())
                 .build();

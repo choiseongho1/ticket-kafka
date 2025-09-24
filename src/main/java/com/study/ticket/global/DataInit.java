@@ -8,6 +8,10 @@ import com.study.ticket.domain.order.domain.entity.Order;
 import com.study.ticket.domain.order.domain.entity.OrderItem;
 import com.study.ticket.domain.order.domain.enums.OrderStatus;
 import com.study.ticket.domain.order.domain.repository.OrderRepository;
+import com.study.ticket.domain.payment.domain.entity.Payment;
+import com.study.ticket.domain.payment.domain.enums.PaymentMethod;
+import com.study.ticket.domain.payment.domain.enums.PaymentStatus;
+import com.study.ticket.domain.payment.domain.repository.PaymentRepository;
 import com.study.ticket.domain.screening.domain.entity.Screening;
 import com.study.ticket.domain.screening.domain.repository.ScreeningRepository;
 import com.study.ticket.domain.user.domain.entity.User;
@@ -37,6 +41,7 @@ public class DataInit {
     private final ScreeningRepository screeningRepository;
     private final UserRepository userRepository;
     private final OrderRepository orderRepository;
+    private final PaymentRepository paymentRepository;
     /**
      * 개발 환경에서만 실행되는 초기 데이터 로드 메서드
      * @return CommandLineRunner 인스턴스
@@ -58,6 +63,9 @@ public class DataInit {
 
             // 주문 데이터 초기화
             initOrders(users, screenings);
+
+            // 결제 데이터 초기화
+            initPayments();
 
             log.info("초기 데이터 로딩 완료");
         };
@@ -407,5 +415,74 @@ public class DataInit {
 
         // 주문 저장
         orderRepository.save(order);
+    }
+
+    /**
+     * 결제 데이터 초기화
+     */
+    private void initPayments() {
+        log.info("결제 데이터 초기화 시작");
+
+        // 이미 결제 데이터가 있는지 확인
+        if (paymentRepository.count() > 0) {
+            log.info("결제 데이터가 이미 존재합니다. 초기화를 건너뜁니다.");
+            return;
+        }
+
+        // 첫 번째 결제 (완료된 주문)
+        createPayment(
+            orderRepository.findByOrderNumber("ORD-20250924-00001").orElseThrow(),
+            "PAY-20250924-00001",
+            PaymentMethod.EASY_PAYMENT,
+            PaymentStatus.COMPLETED,
+            LocalDateTime.now().minusHours(2)
+        );
+
+        // 두 번째 결제 (완료된 주문)
+        createPayment(
+            orderRepository.findByOrderNumber("ORD-20250924-00002").orElseThrow(),
+            "PAY-20250924-00002",
+            PaymentMethod.EASY_PAYMENT,
+            PaymentStatus.COMPLETED,
+            LocalDateTime.now().minusHours(1)
+        );
+
+        // 세 번째 결제 (결제 대기 중인 주문)
+        createPayment(
+            orderRepository.findByOrderNumber("ORD-20250924-00003").orElseThrow(),
+            "PAY-20250924-00003",
+            PaymentMethod.EASY_PAYMENT,
+            PaymentStatus.PENDING,
+            LocalDateTime.now().minusMinutes(30)
+        );
+
+        log.info("결제 데이터 초기화 완료: {} 개", paymentRepository.count());
+    }
+
+    /**
+     * 결제 생성 헬퍼 메서드
+     * @param order 주문
+     * @param paymentNumber 결제 번호
+     * @param method 결제 방법
+     * @param status 결제 상태
+     * @param createdAt 생성 시간
+     */
+    private void createPayment(Order order, String paymentNumber, PaymentMethod method, PaymentStatus status, LocalDateTime createdAt) {
+        // 결제 생성
+        Payment payment = Payment.builder()
+                .paymentNumber(paymentNumber)
+                .order(order)
+                .amount(order.getTotalAmount())
+                .method(method)
+                .status(status)
+                .build();
+
+        // 결제 성공인 경우 결제 시간 설정
+        if (status == PaymentStatus.COMPLETED) {
+            payment.setPaymentTime(createdAt);
+        }
+
+        // 결제 저장
+        paymentRepository.save(payment);
     }
 }

@@ -1,4 +1,4 @@
-package com.study.ticket.domain.payment.controller.dto;
+package com.study.ticket.domain.payment.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PaymentApproveRequest {
+public class PaymentApproveDto {
 
     /**
      * 외부 결제 시스템 키

@@ -9,7 +9,7 @@ import java.util.Optional;
 /**
  * 결제 리포지토리 인터페이스
  */
-public interface PaymentRepository extends JpaRepository<Payment, Long> {
+public interface PaymentRepository extends JpaRepository<Payment, Long>, PaymentDslRepository {
 
     /**
      * 주문에 해당하는 결제를 조회합니다.

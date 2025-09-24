@@ -9,6 +9,10 @@ import com.study.ticket.domain.payment.domain.entity.Payment;
 import com.study.ticket.domain.payment.domain.enums.PaymentMethod;
 import com.study.ticket.domain.payment.domain.enums.PaymentStatus;
 import com.study.ticket.domain.payment.domain.repository.PaymentRepository;
+import com.study.ticket.domain.payment.dto.PaymentApproveDto;
+import com.study.ticket.domain.payment.dto.PaymentCancelDto;
+import com.study.ticket.domain.payment.dto.PaymentDetailDto;
+import com.study.ticket.domain.payment.dto.PaymentSaveDto;
 import com.study.ticket.domain.payment.event.PaymentApprovedEvent;
 import com.study.ticket.domain.payment.event.PaymentCancelledEvent;
 import lombok.RequiredArgsConstructor;
@@ -37,13 +41,12 @@ public class PaymentService {
      * 결제를 생성합니다.
      * @param orderId 주문 ID
      * @param method 결제 방법
-     * @return 생성된 결제
      */
     @Transactional
-    public Payment createPayment(Long orderId, PaymentMethod method) {
+    public void createPayment(PaymentSaveDto paymentSaveDto) {
         // 주문 조회
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("주문을 찾을 수 없음: " + orderId));
+        Order order = orderRepository.findById(paymentSaveDto.getOrderId())
+                .orElseThrow(() -> new RuntimeException("주문을 찾을 수 없음: " + paymentSaveDto.getOrderId()));
         
         // 주문 상태 확인
         if (order.getStatus() != OrderStatus.CREATED && order.getStatus() != OrderStatus.PAYMENT_PENDING) {
@@ -52,22 +55,17 @@ public class PaymentService {
         
         // 이미 결제가 있는지 확인
         if (paymentRepository.existsByOrder(order)) {
-            throw new RuntimeException("이미 결제가 존재합니다: " + orderId);
+            throw new RuntimeException("이미 결제가 존재합니다: " + paymentSaveDto.getOrderId());
         }
         
         // 결제 생성
-        Payment payment = Payment.builder()
-                .order(order)
-                .amount(order.getTotalAmount())
-                .method(method)
-                .status(PaymentStatus.PENDING)
-                .build();
+        Payment payment = paymentSaveDto.toEntity(order);
         
         // 주문 상태 변경
-//        orderService.waitForPayment(orderId);
+        orderService.waitForPayment(paymentSaveDto.getOrderId());
         
         // 결제 저장
-        return paymentRepository.save(payment);
+        paymentRepository.save(payment);
     }
     
     /**
@@ -76,8 +74,8 @@ public class PaymentService {
      * @return 결제
      */
     @Transactional(readOnly = true)
-    public Payment getPayment(Long paymentId) {
-        return paymentRepository.findById(paymentId)
+    public PaymentDetailDto findPaymentDetailByPaymentId(Long paymentId) {
+        return paymentRepository.findPaymentDetailByPaymentId(paymentId)
                 .orElseThrow(() -> new RuntimeException("결제를 찾을 수 없음: " + paymentId));
     }
     
@@ -87,39 +85,37 @@ public class PaymentService {
      * @return 결제
      */
     @Transactional(readOnly = true)
-    public Payment getPaymentByOrder(Long orderId) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("주문을 찾을 수 없음: " + orderId));
-        return paymentRepository.findByOrder(order)
-                .orElseThrow(() -> new RuntimeException("결제를 찾을 수 없음, 주문 ID: " + orderId));
+    public PaymentDetailDto findPaymentDetailByOrderId(Long orderId) {
+        return paymentRepository.findPaymentDetailByOrderId(orderId)
+                .orElseThrow(() -> new RuntimeException("결제를 찾을 수 없음: " + orderId));
     }
     
     /**
      * 결제를 승인합니다.
      * @param paymentId 결제 ID
-     * @param paymentKey 외부 결제 시스템 키
-     * @return 승인된 결제
+     * @param PaymentApproveDto paymentApproveDto
      */
     @Transactional
-    public Payment approvePayment(Long paymentId, String paymentKey) {
-        Payment payment = getPayment(paymentId);
-        
+    public void approvePayment(Long paymentId, PaymentApproveDto paymentApproveDto) {
+        Payment payment = paymentRepository.findById(paymentId)
+                        .orElseThrow(() -> new RuntimeException("결제를 찾을 수 없음: " + paymentId));
+
         // 결제 상태 확인
         if (payment.getStatus() != PaymentStatus.PENDING && payment.getStatus() != PaymentStatus.PROCESSING) {
             throw new RuntimeException("승인 가능한 상태가 아닙니다: " + payment.getStatus());
         }
-        
+
         // 결제 승인
-        payment.approve(paymentKey);
-        
+        payment.approve(paymentApproveDto.getPaymentKey());
+
         // 주문 상태 변경
         Order order = payment.getOrder();
         order.completePayment();
         orderRepository.save(order);
-        
+
         // 결제 저장
         Payment savedPayment = paymentRepository.save(payment);
-        
+
         // 결제 승인 이벤트 발행
         PaymentApprovedEvent event = new PaymentApprovedEvent(savedPayment);
         outboxEventService.saveEvent(
@@ -128,42 +124,41 @@ public class PaymentService {
                 savedPayment.getId().toString(),
                 paymentEventsTopic
         );
-        
+
         log.info("결제 승인 완료: {}", savedPayment.getPaymentNumber());
-        return savedPayment;
     }
-    
+
     /**
      * 결제를 취소합니다.
      * @param paymentId 결제 ID
-     * @param reason 취소 사유
-     * @return 취소된 결제
+     * @param PaymentCancelDto paymentCancelDto
      */
     @Transactional
-    public Payment cancelPayment(Long paymentId, String reason) {
-        Payment payment = getPayment(paymentId);
-        
+    public void cancelPayment(Long paymentId, PaymentCancelDto paymentCancelDto) {
+        Payment payment = paymentRepository.findById(paymentId)
+                        .orElseThrow(() -> new RuntimeException("결제를 찾을 수 없음: " + paymentId));
+
+
         // 결제 상태 확인
         if (payment.getStatus() != PaymentStatus.COMPLETED) {
             throw new RuntimeException("취소 가능한 상태가 아닙니다: " + payment.getStatus());
         }
-        
+
         // 결제 취소
-        payment.cancel(reason);
-        
+        payment.cancel(paymentCancelDto.getReason());
+
         // 결제 저장
         Payment savedPayment = paymentRepository.save(payment);
-        
+
         // 결제 취소 이벤트 발행
-        PaymentCancelledEvent event = new PaymentCancelledEvent(savedPayment, reason);
+        PaymentCancelledEvent event = new PaymentCancelledEvent(savedPayment, paymentCancelDto.getReason());
         outboxEventService.saveEvent(
                 event,
                 "PAYMENT",
                 savedPayment.getId().toString(),
                 paymentEventsTopic
         );
-        
+
         log.info("결제 취소 완료: {}", savedPayment.getPaymentNumber());
-        return savedPayment;
     }
 }
