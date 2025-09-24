@@ -114,7 +114,7 @@ public class ScreeningController {
             Page<ScreeningListDto> list = screeningService.findScreeningListWithPaging(screeningCondDto, pageable);
 
             ResponseDto<Page<ScreeningListDto>> response = ResponseDto.<Page<ScreeningListDto>>builder()
-                .responseCode(SCREENING_GET_SUCCESS)
+                .responseCode(SCREENING_LIST_SUCCESS)
                 .responseMessage("상영 조회에 성공했습니다.")
                 .data(list)
                 .build();
@@ -124,7 +124,7 @@ public class ScreeningController {
             log.error("상영 조회 실패: {}", e.getMessage(), e);
 
             ResponseDto<Page<ScreeningListDto>> errorResponse = ResponseDto.<Page<ScreeningListDto>>builder()
-                .responseCode(SCREENING_GET_FAILED)
+                .responseCode(SCREENING_LIST_FAILED)
                 .responseMessage("상영 조회에 실패했습니다: " + e.getMessage())
                 .build();
 
