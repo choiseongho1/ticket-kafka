@@ -18,7 +18,7 @@ import java.util.Optional;
 /**
  * 영화 티켓 리포지토리 인터페이스
  */
-public interface MovieTicketRepository extends JpaRepository<MovieTicket, Long> {
+public interface MovieTicketRepository extends JpaRepository<MovieTicket, Long> , MovieTicketDslRepository{
 
     /**
      * 티켓 번호로 티켓을 조회합니다.

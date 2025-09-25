@@ -189,10 +189,10 @@ public class OrderService {
      * @return 완료된 주문
      */
     @Transactional
-    public Order completeOrder(Long orderId) {
+    public void completeOrder(Long orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("주문 정보를 찾을 수 없음: " + orderId));;
         order.complete();
-        return orderRepository.save(order);
+        orderRepository.save(order);
     }
 }

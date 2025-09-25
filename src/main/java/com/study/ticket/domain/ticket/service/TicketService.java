@@ -8,6 +8,9 @@ import com.study.ticket.domain.outbox.service.OutboxEventService;
 import com.study.ticket.domain.ticket.domain.entity.MovieTicket;
 import com.study.ticket.domain.ticket.domain.enums.TicketStatus;
 import com.study.ticket.domain.ticket.domain.repository.MovieTicketRepository;
+import com.study.ticket.domain.ticket.dto.TicketCondDto;
+import com.study.ticket.domain.ticket.dto.TicketDetailDto;
+import com.study.ticket.domain.ticket.dto.TicketListDto;
 import com.study.ticket.domain.ticket.event.TicketIssuedEvent;
 import com.study.ticket.domain.ticket.event.TicketUsedEvent;
 import lombok.RequiredArgsConstructor;
@@ -41,10 +44,9 @@ public class TicketService {
     /**
      * 티켓을 발급합니다.
      * @param orderId 주문 ID
-     * @return 발급된 티켓 목록
      */
     @Transactional
-    public List<MovieTicket> issueTickets(Long orderId) {
+    public void issueTickets(Long orderId) {
         // 주문 조회
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("주문을 찾을 수 없음: " + orderId));
@@ -53,7 +55,7 @@ public class TicketService {
         List<MovieTicket> existingTickets = movieTicketRepository.findByOrder(order);
         if (!existingTickets.isEmpty()) {
             log.warn("이미 티켓이 발급되었습니다: {}", orderId);
-            return existingTickets;
+            return ;
         }
         
         List<MovieTicket> tickets = new ArrayList<>();
@@ -82,10 +84,9 @@ public class TicketService {
         }
         
         // 주문 상태 업데이트
-//        orderService.completeOrder(orderId);
+        orderService.completeOrder(orderId);
         
         log.info("티켓 발급 완료: 주문 ID={}, 티켓 수={}", orderId, tickets.size());
-        return tickets;
     }
     
     /**
@@ -94,8 +95,8 @@ public class TicketService {
      * @return 티켓
      */
     @Transactional(readOnly = true)
-    public MovieTicket getTicket(Long ticketId) {
-        return movieTicketRepository.findById(ticketId)
+    public TicketDetailDto findTicketDetailByTicketId(Long ticketId) {
+        return movieTicketRepository.findTicketDetailByTicketId(ticketId)
                 .orElseThrow(() -> new RuntimeException("티켓을 찾을 수 없음: " + ticketId));
     }
     
@@ -105,8 +106,8 @@ public class TicketService {
      * @return 티켓
      */
     @Transactional(readOnly = true)
-    public MovieTicket getTicketByNumber(String ticketNumber) {
-        return movieTicketRepository.findByTicketNumber(ticketNumber)
+    public TicketDetailDto findTicketDetailByTicketNumber(String ticketNumber) {
+        return movieTicketRepository.findTicketDetailByTicketNumber(ticketNumber)
                 .orElseThrow(() -> new RuntimeException("티켓을 찾을 수 없음: " + ticketNumber));
     }
     
@@ -116,35 +117,25 @@ public class TicketService {
      * @return 티켓 목록
      */
     @Transactional(readOnly = true)
-    public List<MovieTicket> getTicketsByOrder(Long orderId) {
-        Order order = orderRepository.findById(orderId)
+    public List<TicketListDto> findTicketListByOrderId(Long orderId) {
+        orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("주문을 찾을 수 없음: " + orderId));
-        return movieTicketRepository.findByOrder(order);
+        return movieTicketRepository.findTicketListByOrderId(orderId);
     }
     
     /**
      * 사용자의 티켓 목록을 조회합니다.
      * @param userId 사용자 ID
+     * @param TicketCondDto ticketCondDto
      * @param pageable 페이지 정보
      * @return 티켓 페이지
      */
     @Transactional(readOnly = true)
-    public Page<MovieTicket> getUserTickets(Long userId, Pageable pageable) {
-        return movieTicketRepository.findByUserId(userId, pageable);
+    public Page<TicketListDto> findTicketListWithPaging(Long userId, TicketCondDto ticketCondDto, Pageable pageable) {
+        return movieTicketRepository.findTicketListWithPaging(userId,ticketCondDto , pageable);
     }
     
-    /**
-     * 사용자의 특정 상태의 티켓 목록을 조회합니다.
-     * @param userId 사용자 ID
-     * @param status 티켓 상태
-     * @param pageable 페이지 정보
-     * @return 티켓 페이지
-     */
-    @Transactional(readOnly = true)
-    public Page<MovieTicket> getUserTicketsByStatus(Long userId, TicketStatus status, Pageable pageable) {
-        return movieTicketRepository.findByUserIdAndStatus(userId, status, pageable);
-    }
-    
+
     /**
      * 티켓을 사용합니다.
      * @param ticketId 티켓 ID
@@ -152,7 +143,8 @@ public class TicketService {
      */
     @Transactional
     public MovieTicket useTicket(Long ticketId) {
-        MovieTicket ticket = getTicket(ticketId);
+        MovieTicket ticket = movieTicketRepository.findById(ticketId)
+                .orElseThrow(()-> new RuntimeException("올바르지 않은 티켓 정보 입니다." + ticketId));
         
         // 티켓 상태 확인
         if (ticket.getStatus() != TicketStatus.ISSUED) {
@@ -183,7 +175,8 @@ public class TicketService {
      */
     @Transactional
     public MovieTicket cancelTicket(Long ticketId) {
-        MovieTicket ticket = getTicket(ticketId);
+        MovieTicket ticket = movieTicketRepository.findById(ticketId)
+                .orElseThrow(()-> new RuntimeException("올바르지 않은 티켓 정보 입니다." + ticketId));
         
         // 티켓 상태 확인
         if (ticket.getStatus() != TicketStatus.ISSUED) {

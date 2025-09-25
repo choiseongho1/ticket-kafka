@@ -11,8 +11,6 @@ import java.util.Optional;
 
 public interface PaymentDslRepository {
 
-//    Page<OrderListDto> findOrderListWithPaging(Long userId, OrderCondDto orderCondDto, Pageable pageable);
-//
     Optional<PaymentDetailDto> findPaymentDetailByPaymentId(Long id);
     Optional<PaymentDetailDto> findPaymentDetailByOrderId(Long orderId);
 }
